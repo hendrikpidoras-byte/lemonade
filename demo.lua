@@ -1,52 +1,51 @@
--- NexusRec.netlify.app öffnen (indirekt über Zwischenablage + Hinweis)
+-- Website öffnen über Zwischenablage + Hinweis (für Delta Executor)
 
 local url = "https://nexusrec.netlify.app/"
 
--- URL in Zwischenablage kopieren (funktioniert in Krnl, Fluxus, Synapse, etc.)
+-- URL in Zwischenablage kopieren
 setclipboard(url)
 
 -- GUI erstellen
-local ScreenGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local TextLabel = Instance.new("TextLabel")
-local TextButton = Instance.new("TextButton")
+local gui = Instance.new("ScreenGui")
+local frame = Instance.new("Frame")
+local label = Instance.new("TextLabel")
+local button = Instance.new("TextButton")
 
-ScreenGui.Parent = game.CoreGui
-ScreenGui.ResetOnSpawn = false
+gui.Parent = game:GetService("CoreGui")
+gui.ResetOnSpawn = false
 
-Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-Frame.BorderSizePixel = 2
-Frame.BorderColor3 = Color3.fromRGB(255, 100, 100)
-Frame.Size = UDim2.new(0, 350, 0, 180)
-Frame.Position = UDim2.new(0.5, -175, 0.5, -90)
-Frame.Active = true
-Frame.Draggable = true
+frame.Parent = gui
+frame.Size = UDim2.new(0, 320, 0, 140)
+frame.Position = UDim2.new(0.5, -160, 0.5, -70)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+frame.BorderSizePixel = 2
+frame.BorderColor3 = Color3.fromRGB(255, 50, 50)
+frame.Active = true
+frame.Draggable = true
 
-TextLabel.Parent = Frame
-TextLabel.BackgroundTransparency = 1
-TextLabel.Size = UDim2.new(1, 0, 0, 60)
-TextLabel.Position = UDim2.new(0, 0, 0, 10)
-TextLabel.Text = "NexusRec wird geöffnet..."
-TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextLabel.Font = Enum.Font.GothamBold
-TextLabel.TextSize = 18
+label.Parent = frame
+label.Size = UDim2.new(1, 0, 0, 60)
+label.Position = UDim2.new(0, 0, 0, 10)
+label.BackgroundTransparency = 1
+label.Text = "NexusRec wird geöffnet..."
+label.TextColor3 = Color3.fromRGB(255, 255, 255)
+label.Font = Enum.Font.GothamBold
+label.TextSize = 18
 
-TextButton.Parent = Frame
-TextButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
-TextButton.Size = UDim2.new(0, 200, 0, 50)
-TextButton.Position = UDim2.new(0.5, -100, 1, -70)
-TextButton.Text = "Link in Zwischenablage!"
-TextButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextButton.Font = Enum.Font.GothamBold
-TextButton.TextSize = 16
+button.Parent = frame
+button.Size = UDim2.new(0, 200, 0, 40)
+button.Position = UDim2.new(0.5, -100, 1, -55)
+button.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+button.Text = "Link kopiert!"
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.Font = Enum.Font.GothamBold
+button.TextSize = 16
 
--- Hinweis anzeigen
-spawn(function()
-    wait(1)
-    TextLabel.Text = "Link kopiert!\nDrücke STRG+V in deinem Browser"
-    
-    -- 5 Sekunden warten, dann GUI schließen
-    wait(5)
-    ScreenGui:Destroy()
+-- Hinweis nach 1 Sekunde
+wait(1)
+label.Text = "Link in Zwischenablage!\nÖffne Browser → STRG+V"
+
+-- Auto-Schließen nach 5 Sekunden
+delay(5, function()
+    gui:Destroy()
 end)
