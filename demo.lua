@@ -1,51 +1,126 @@
--- Website öffnen über Zwischenablage + Hinweis (für Delta Executor)
+-- Fake Key System GUI für Delta Executor
+-- Get Key → Kopiert Link
+-- Check Key → Immer "Invalid Key"
 
 local url = "https://nexusrec.netlify.app/"
 
--- URL in Zwischenablage kopieren
-setclipboard(url)
-
 -- GUI erstellen
-local gui = Instance.new("ScreenGui")
-local frame = Instance.new("Frame")
-local label = Instance.new("TextLabel")
-local button = Instance.new("TextButton")
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local KeyBox = Instance.new("TextBox")
+local CheckButton = Instance.new("TextButton")
+local GetKeyButton = Instance.new("TextButton")
+local StatusLabel = Instance.new("TextLabel")
 
-gui.Parent = game:GetService("CoreGui")
-gui.ResetOnSpawn = false
+-- Parent
+ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.ResetOnSpawn = false
 
-frame.Parent = gui
-frame.Size = UDim2.new(0, 320, 0, 140)
-frame.Position = UDim2.new(0.5, -160, 0.5, -70)
-frame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-frame.BorderSizePixel = 2
-frame.BorderColor3 = Color3.fromRGB(255, 50, 50)
-frame.Active = true
-frame.Draggable = true
+-- Main Frame
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.Size = UDim2.new(0, 380, 0, 220)
+MainFrame.Position = UDim2.new(0.5, -190, 0.5, -110)
+MainFrame.Active = true
+MainFrame.Draggable = true
 
-label.Parent = frame
-label.Size = UDim2.new(1, 0, 0, 60)
-label.Position = UDim2.new(0, 0, 0, 10)
-label.BackgroundTransparency = 1
-label.Text = "NexusRec wird geöffnet..."
-label.TextColor3 = Color3.fromRGB(255, 255, 255)
-label.Font = Enum.Font.GothamBold
-label.TextSize = 18
+-- Title
+Title.Parent = MainFrame
+Title.BackgroundTransparency = 1
+Title.Size = UDim2.new(1, 0, 0, 50)
+Title.Text = "🔐 NexusRec Key System"
+Title.TextColor3 = Color3.fromRGB(255, 100, 100)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 22
 
-button.Parent = frame
-button.Size = UDim2.new(0, 200, 0, 40)
-button.Position = UDim2.new(0.5, -100, 1, -55)
-button.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
-button.Text = "Link kopiert!"
-button.TextColor3 = Color3.fromRGB(255, 255, 255)
-button.Font = Enum.Font.GothamBold
-button.TextSize = 16
+-- Key Input Box
+KeyBox.Parent = MainFrame
+KeyBox.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+KeyBox.BorderSizePixel = 1
+KeyBox.BorderColor3 = Color3.fromRGB(80, 80, 90)
+KeyBox.Position = UDim2.new(0.1, 0, 0.3, 0)
+KeyBox.Size = UDim2.new(0.8, 0, 0, 40)
+KeyBox.PlaceholderText = "Enter Key Here..."
+KeyBox.Text = ""
+KeyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyBox.Font = Enum.Font.Code
+KeyBox.TextSize = 16
 
--- Hinweis nach 1 Sekunde
-wait(1)
-label.Text = "Link in Zwischenablage!\nÖffne Browser → STRG+V"
+-- Check Key Button
+CheckButton.Parent = MainFrame
+CheckButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+CheckButton.Size = UDim2.new(0.4, 0, 0, 45)
+CheckButton.Position = UDim2.new(0.55, 0, 0.65, 0)
+CheckButton.Text = "Check Key"
+CheckButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CheckButton.Font = Enum.Font.GothamBold
+CheckButton.TextSize = 16
 
--- Auto-Schließen nach 5 Sekunden
-delay(5, function()
-    gui:Destroy()
+-- Get Key Button
+GetKeyButton.Parent = MainFrame
+GetKeyButton.BackgroundColor3 = Color3.fromRGB(70, 130, 255)
+GetKeyButton.Size = UDim2.new(0.4, 0, 0, 45)
+GetKeyButton.Position = UDim2.new(0.05, 0, 0.65, 0)
+GetKeyButton.Text = "Get Key"
+GetKeyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+GetKeyButton.Font = Enum.Font.GothamBold
+GetKeyButton.TextSize = 16
+
+-- Status Label
+StatusLabel.Parent = MainFrame
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Size = UDim2.new(1, 0, 0, 30)
+StatusLabel.Position = UDim2.new(0, 0, 0.88, 0)
+StatusLabel.Text = ""
+StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+StatusLabel.Font = Enum.Font.Gotham
+StatusLabel.TextSize = 16
+
+-- Button Effekte
+local function hoverEffect(btn, hoverColor, normalColor)
+    btn.MouseEnter:Connect(function()
+        btn.BackgroundColor3 = hoverColor
+    end)
+    btn.MouseLeave:Connect(function()
+        btn.BackgroundColor3 = normalColor
+    end)
+end
+
+hoverEffect(CheckButton, Color3.fromRGB(255, 50, 50), Color3.fromRGB(255, 80, 80))
+hoverEffect(GetKeyButton, Color3.fromRGB(50, 100, 255), Color3.fromRGB(70, 130, 255))
+
+-- Get Key Button → Kopiert Link
+GetKeyButton.MouseButton1Click:Connect(function()
+    setclipboard(url)
+    StatusLabel.Text = "✅ Link copied to clipboard!"
+    StatusLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+    
+    -- 3 Sekunden anzeigen
+    delay(3, function()
+        if StatusLabel and StatusLabel.Parent then
+            StatusLabel.Text = ""
+        end
+    end)
+end)
+
+-- Check Key Button → IMMER Invalid
+CheckButton.MouseButton1Click:Connect(function()
+    StatusLabel.Text = "❌ Invalid Key"
+    StatusLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+    
+    -- 3 Sekunden anzeigen
+    delay(3, function()
+        if StatusLabel and StatusLabel.Parent then
+            StatusLabel.Text = ""
+        end
+    end)
+end)
+
+-- Optional: Schließen mit Rechtsklick auf Frame
+MainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        ScreenGui:Destroy()
+    end
 end)
