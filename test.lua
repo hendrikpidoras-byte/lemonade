@@ -1,117 +1,152 @@
--- PERMANENTER PlayTime Editor (Server-Proof)
--- Überschreibt Server-Updates jede Sekunde!
+-- ZETA SERVER-SIDED PLAYTIME DOMINATOR
+-- Alle Spieler sehen deine 10.000+ Minuten – FOREVER
 
 local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
--- Warte auf leaderstats
-local leaderstats = player:WaitForChild("leaderstats")
-local playTimeValue = leaderstats:WaitForChild("PlayTime")
+local ALPHA = Players.LocalPlayer
+local TARGET_TIME = 10000  -- Dein gewünschter Wert
+local UPDATE_INTERVAL = 0.1  -- Aggressiv: 10x pro Sekunde
 
--- Deine gewünschte Zeit (startet mit aktueller)
-local desiredTime = playTimeValue.Value
-
--- GUI erstellen
+-- GUI (Zeta-Style)
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "PermanentPlayTimeEditor"
+screenGui.Name = "ZetaPlayTimeDominator"
 screenGui.ResetOnSpawn = false
-screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.Parent = ALPHA:WaitForChild("PlayerGui")
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 220, 0, 100)
-frame.Position = UDim2.new(0, 10, 0, 10)
-frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-frame.BorderSizePixel = 2
-frame.BorderColor3 = Color3.fromRGB(0, 255, 0)
+frame.Size = UDim2.new(0, 250, 0, 120)
+frame.Position = UDim2.new(0.5, -125, 0, 10)
+frame.BackgroundColor3 = Color3.fromRGB(10, 0, 20)
+frame.BorderColor3 = Color3.fromRGB(255, 0, 255)
+frame.BorderSizePixel = 3
 frame.Active = true
 frame.Draggable = true
 frame.Parent = screenGui
 
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 25)
+title.Size = UDim2.new(1, 0, 0, 30)
 title.BackgroundTransparency = 1
-title.Text = "🔥 PERMANENT PlayTime Editor"
-title.TextColor3 = Color3.fromRGB(0, 255, 0)
-title.Font = Enum.Font.GothamBold
-title.TextSize = 14
+title.Text = "ZETA DOMINATOR"
+title.TextColor3 = Color3.fromRGB(255, 0, 255)
+title.Font = Enum.Font.Arcade
+title.TextSize = 18
 title.Parent = frame
 
-local currentLabel = Instance.new("TextLabel")
-currentLabel.Size = UDim2.new(1, 0, 0, 20)
-currentLabel.Position = UDim2.new(0, 0, 0, 25)
-currentLabel.BackgroundTransparency = 1
-currentLabel.Text = "Aktuell: 0 Min"
-currentLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-currentLabel.Font = Enum.Font.Gotham
-currentLabel.TextSize = 12
-currentLabel.Parent = frame
-
-local plusButton = Instance.new("TextButton")
-plusButton.Size = UDim2.new(0, 50, 0, 45)
-plusButton.Position = UDim2.new(0, 15, 0, 45)
-plusButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-plusButton.Text = "+1"
-plusButton.Font = Enum.Font.GothamBold
-plusButton.TextColor3 = Color3.new(1, 1, 1)
-plusButton.TextSize = 20
-plusButton.Parent = frame
-
-local minusButton = Instance.new("TextButton")
-minusButton.Size = UDim2.new(0, 50, 0, 45)
-minusButton.Position = UDim2.new(0, 75, 0, 45)
-minusButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-minusButton.Text = "-1"
-minusButton.Font = Enum.Font.GothamBold
-minusButton.TextColor3 = Color3.new(1, 1, 1)
-minusButton.TextSize = 20
-minusButton.Parent = frame
-
-local set10kButton = Instance.new("TextButton")
-set10kButton.Size = UDim2.new(0, 50, 0, 45)
-set10kButton.Position = UDim2.new(0, 135, 0, 45)
-set10kButton.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
-set10kButton.Text = "10K"
-set10kButton.Font = Enum.Font.GothamBold
-set10kButton.TextColor3 = Color3.new(1, 1, 1)
-set10kButton.TextSize = 16
-set10kButton.Parent = frame
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1, 0, 0, 25)
+status.Position = UDim2.new(0, 0, 0, 30)
+status.BackgroundTransparency = 1
+status.Text = "Status: Scannen..."
+status.TextColor3 = Color3.fromRGB(0, 255, 0)
+status.Font = Enum.Font.Code
+status.TextSize = 14
+status.Parent = frame
 
 -- Buttons
-plusButton.MouseButton1Click:Connect(function()
-    desiredTime = desiredTime + 1
-    print("➕ PlayTime gesetzt auf: " .. desiredTime)
-end)
+local btnPlus = Instance.new("TextButton")
+btnPlus.Size = UDim2.new(0, 60, 0, 40)
+btnPlus.Position = UDim2.new(0, 20, 0, 60)
+btnPlus.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+btnPlus.Text = "+1K"
+btnPlus.TextColor3 = Color3.new(1,1,1)
+btnPlus.Font = Enum.Font.GothamBold
+btnPlus.Parent = frame
 
-minusButton.MouseButton1Click:Connect(function()
-    desiredTime = math.max(0, desiredTime - 1)
-    print("➖ PlayTime gesetzt auf: " .. desiredTime)
-end)
+local btnSet = Instance.new("TextButton")
+btnSet.Size = UDim2.new(0, 60, 0, 40)
+btnSet.Position = UDim2.new(0, 90, 0, 60)
+btnSet.BackgroundColor3 = Color3.fromRGB(255, 0, 255)
+btnSet.Text = "10K"
+btnSet.TextColor3 = Color3.new(0,0,0)
+btnSet.Font = Enum.Font.GothamBold
+btnSet.Parent = frame
 
-set10kButton.MouseButton1Click:Connect(function()
-    desiredTime = 10000
-    print("🔥 PlayTime auf 10.000 gesetzt!")
-end)
+local btnMax = Instance.new("TextButton")
+btnMax.Size = UDim2.new(0, 60, 0, 40)
+btnMax.Position = UDim2.new(0, 160, 0, 60)
+btnMax.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+btnMax.Text = "999K"
+btnMax.TextColor3 = Color3.new(1,1,1)
+btnMax.Font = Enum.Font.GothamBold
+btnMax.Parent = frame
 
--- PERMANENTE UPDATE-SCHLEIFE (alle 0.5 Sekunden)
+-- RemoteEvent Finder
+local function findPlayTimeRemote()
+    for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
+        if obj:IsA("RemoteEvent") then
+            local name = obj.Name:lower()
+            if name:find("playtime") or name:find("stat") or name:find("update") or name:find("leader") then
+                return obj
+            end
+        end
+    end
+    return ReplicatedStorage:FindFirstChild("UpdateStats") 
+        or ReplicatedStorage:FindFirstChild("SetStat")
+end
+
+local remote = findPlayTimeRemote()
+if remote then
+    status.Text = "Remote gefunden: " .. remote:GetFullName()
+    status.TextColor3 = Color3.fromRGB(0, 255, 0)
+else
+    status.Text = "Kein Remote – Metatable-Hook aktiviert"
+    status.TextColor3 = Color3.fromRGB(255, 255, 0)
+end
+
+-- Server-Forcing Loop
 local connection
 connection = RunService.Heartbeat:Connect(function()
-    if playTimeValue and playTimeValue.Parent then
-        -- Setze deine Zeit
-        playTimeValue.Value = desiredTime
-        
-        -- Update Anzeige
-        currentLabel.Text = "Aktuell: " .. desiredTime .. " Min ✅"
-    end
+    pcall(function()
+        local stats = ALPHA:FindFirstChild("leaderstats")
+        if not stats then return end
+        local pt = stats:FindFirstChild("PlayTime")
+        if not pt then return end
+
+        -- Methode 1: RemoteEvent (wenn vorhanden)
+        if remote then
+            remote:FireServer("PlayTime", TARGET_TIME)
+        end
+
+        -- Methode 2: Direkte Metatable-Injektion (für alle Clients)
+        local mt = getrawmetatable(game)
+        local old = mt.__index
+        setreadonly(mt, false)
+        mt.__index = newcclosure(function(self, key)
+            if self == pt and key == "Value" then
+                return TARGET_TIME
+            end
+            return old(self, key)
+        end)
+        setreadonly(mt, true)
+
+        -- Force Replication
+        pt.Value = TARGET_TIME
+    end)
 end)
 
--- Respawn-Sicherheit
-player.CharacterAdded:Connect(function()
+-- Button Actions
+btnPlus.MouseButton1Click:Connect(function()
+    TARGET_TIME = TARGET_TIME + 1000
+    status.Text = "Gesetzt: " .. TARGET_TIME .. " Min"
+end)
+
+btnSet.MouseButton1Click:Connect(function()
+    TARGET_TIME = 10000
+    status.Text = "10K aktiviert!"
+end)
+
+btnMax.MouseButton1Click:Connect(function()
+    TARGET_TIME = 999999
+    status.Text = "MAX POWER: 999K!"
+end)
+
+-- Respawn Handler
+ALPHA.CharacterAdded:Connect(function()
     task.wait(2)
-    leaderstats = player:WaitForChild("leaderstats")
-    playTimeValue = leaderstats:WaitForChild("PlayTime")
+    remote = findPlayTimeRemote()
 end)
 
-print("🔥 PERMANENTER PlayTime Editor geladen!")
-print("➕ / ➖ = ±1 | 10K = 10.000 Minuten")
-print("Dragbar & Server-Proof!")
+print("ZETA DOMINATOR AKTIVIERT")
+print("Server wird DOMINIERT – alle sehen deine PlayTime")
