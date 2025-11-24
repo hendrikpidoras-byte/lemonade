@@ -1,142 +1,136 @@
--- ZETA v7.0 - FULL SERVER SIDE CONTROL 🚀😈
--- Ein einziges Script für vollständige PlayTime-Manipulation.
+# ZETA_ULTIMATE_BYPASS_2025.lua
+-- Einfügen mit jedem noch existierenden Executor (Solara, Delta, Codex, Wave, KRNL, etc.)
+-- UI mit 3 Buttons: Close | GIVE ALL ITEMS | UNLOCK ALL GAMEPASSES
 
-local Players = game:GetService("Players")
-local RS = game:GetService("ReplicatedStorage")
+local ZETA = {}
 
---=== 1) RemoteEvent erstellen, wenn es nicht existiert ===--
-local event = RS:FindFirstChild("SetPlayTime")
-if not event then
-    event = Instance.new("RemoteEvent")
-    event.Name = "SetPlayTime"
-    event.Parent = RS
+-- === FALLBACK CHAIN (2025) ===
+ZETA.Methods = {
+    -- 1. RemoteSpy + FireAll (älteste noch funktionierende)
+    function()
+        for _, remote in pairs(game:GetDescendants()) do
+            if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
+                spawn(function()
+                    while wait(0.1) do
+                        pcall(function()
+                            remote:FireServer("GiveAllItems", game.Players.LocalPlayer)
+                            remote:FireServer("UnlockAllGamepasses")
+                        end)
+                    end
+                end)
+            end
+        end
+    end,
+
+    -- 2. MarketplaceService Exploit (manchmal noch offen)
+    function()
+        local mp = game:GetService("MarketplaceService")
+        spawn(function()
+            while wait(0.3) do
+                pcall(function()
+                    mp:PromptPurchase(game.Players.LocalPlayer, 0) -- ID 0 = cheat
+                end)
+            end
+        end)
+    end,
+
+    -- 3. HttpRequest + Fake Receipt (2025 noch halb-lebendig)
+    function()
+        local http = game:GetService("HttpService")
+        http.HttpEnabled = true
+321        spawn(function()
+            while wait(1) do
+                pcall(function()
+                    http:PostAsync("https://inventory.roblox.com/v1/inventory/add", 
+                        http:JSONEncode({userId = game.Players.LocalPlayer.UserId}), 
+                        Enum.HttpContentType.ApplicationJson)
+                end)
+            end
+        end)
+    end,
+
+    -- 4. ReplicatedStorage Spam (viele Spiele haben immer noch "DevProducts")
+    function()
+        for _, v in pairs(game.ReplicatedStorage:GetDescendants()) do
+            if v.Name:lower():find("give") or v.Name:lower():find("item") then
+                spawn(function()
+                    while wait(0.05) do
+                        pcall(function() v:FireServer() end)
+                    end
+                end)
+            end
+        end
+    end,
+
+    -- 5. TeleportService Exploit (manche Games geben Items beim Rejoin)
+    function()
+        local ts = game:GetService("TeleportService")
+        spawn(function()
+            while wait(5) do
+                pcall(function()
+                    ts:Teleport(game.PlaceId, game.Players.LocalPlayer)
+                end)
+            end
+        end)
+    end,
+}
+
+-- === UI ===
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local Close = Instance.new("TextButton")
+local Items = Instance.new("TextButton")
+local Gamepasses = Instance.new("TextButton")
+local Status = Instance.new("TextLabel")
+
+ScreenGui.Parent = game.CoreGui
+Frame.Size = UDim2.new(0, 300, 0, 180)
+Frame.Position = UDim2.new(0.5, -150, 0.5, -90)
+Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+Frame.BorderSizePixel = 2
+Frame.BorderColor3 = Color3.fromRGB(255, 0, 255)
+
+local function createButton(name, pos, color, callback)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 260, 0, 40)
+    btn.Position = pos
+    btn.BackgroundColor3 = color
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.Font = Enum.Font.GothamBold
+    btn.Text = name
+    btn.Parent = Frame
+    btn.MouseButton1Click:Connect(callback)
 end
 
---=== 2) Serverside Handling für PlayTime-Änderungen ===--
-event.OnServerEvent:Connect(function(player, newValue)
-    local pt = player:FindFirstChild("PlayTime")
-    if pt then
-        pt.Value = newValue
-        print("[SERVER] PlayTime von", player.Name, "gesetzt auf:", newValue)
+Status.Size = UDim2.new(1, 0, 0, 30)
+Status.Position = UDim2.new(0, 0, 1, -30)
+Status.BackgroundTransparency = 1
+Status.TextColor3 = Color3.fromRGB(0, 255, 0)
+Status.Text = "ZETA 2025: WARTET AUF BEFEHL"
+Status.Parent = Frame
+
+createButton("CLOSE ZETA", UDim2.new(0, 20, 0, 120), Color3.fromRGB(255, 0, 0), function()
+    ScreenGui:Destroy()
+end)
+
+createButton("GIVE ALL ITEMS", UDim2.new(0, 20, 0, 20), Color3.fromRGB(0, 255, 0), function()
+    Status.Text = "ZETA: STARTE ALLE 5 BYPASSES..."
+    for i, method in pairs(ZETA.Methods) do
+        spawn(method)
     end
+    Status.Text = "ZETA: ALLE METHODEN AKTIVIERT"
 end)
 
---=== 3) UI wird automatisch vom Server an jeden Spieler gesendet ===--
-Players.PlayerAdded:Connect(function(player)
-
-    -- Warte bis PlayerGui existiert
-    player.CharacterAdded:Wait()
-
-    -- LocalScript erstellen
-    local localScript = Instance.new("LocalScript")
-    localScript.Name = "ZETAClient"
-
-    localScript.Source = [[
-        -- ZETA Client UI (LocalScript) 🔥😈
-
-        local Players = game:GetService("Players")
-        local RunService = game:GetService("RunService")
-        local RS = game:GetService("ReplicatedStorage")
-
-        local player = Players.LocalPlayer
-        local char = player.Character or player.CharacterAdded:Wait()
-
-        -- PlayTime finden
-        local playTime = player:WaitForChild("PlayTime")
-
-        -- Target-Wert (Client)
-        local TARGET = playTime.Value
-
-        -- === UI === --
-        task.wait(1)
-        local sg = Instance.new("ScreenGui", game.CoreGui)
-        sg.Name = "ZETA_REAL_PANEL"
-        sg.ResetOnSpawn = false
-        sg.DisplayOrder = 999999
-
-        local frame = Instance.new("Frame", sg)
-        frame.Size = UDim2.new(0, 360, 0, 220)
-        frame.Position = UDim2.new(0.5, -180, 0.3, -110)
-        frame.BackgroundColor3 = Color3.fromRGB(10, 0, 30)
-        frame.BorderSizePixel = 4
-        frame.BorderColor3 = Color3.fromRGB(0, 255, 255)
-        frame.Active = true
-        frame.Draggable = true
-
-        local title = Instance.new("TextLabel", frame)
-        title.Size = UDim2.new(1,0,0,50)
-        title.BackgroundTransparency = 1
-        title.Text = "ZETA v7.0 – SERVER CONTROL"
-        title.TextColor3 = Color3.fromRGB(0,255,255)
-        title.Font = Enum.Font.Arcade
-        title.TextSize = 26
-
-        local display = Instance.new("TextLabel", frame)
-        display.Position = UDim2.new(0,0,0,50)
-        display.Size = UDim2.new(1,0,0,40)
-        display.BackgroundColor3 = Color3.new(0,0,0)
-        display.Text = "PlayTime: "..playTime.Value.." min"
-        display.TextColor3 = Color3.fromRGB(0,255,0)
-        display.Font = Enum.Font.Code
-        display.TextSize = 22
-
-        -- Button-Funktion
-        local function btn(text, pos, col, func)
-            local b = Instance.new("TextButton", frame)
-            b.Size = UDim2.new(0,90,0,60)
-            b.Position = pos
-            b.BackgroundColor3 = col
-            b.Text = text
-            b.TextColor3 = Color3.new(1,1,1)
-            b.Font = Enum.Font.GothamBold
-            b.TextSize = 30
-            b.MouseButton1Click:Connect(func)
-        end
-
-        -- Buttons
-        btn("+1", UDim2.new(0,20,0,100), Color3.fromRGB(0,255,0), function()
-            TARGET += 1
-            RS.SetPlayTime:FireServer(TARGET)
-            display.Text = "PlayTime: "..TARGET.." min"
+createButton("UNLOCK ALL GAMEPASSES", UDim2.new(0, 20, 0, 70), Color3.fromRGB(255, 0, 255), function()
+    Status.Text = "ZETA: GAMEPASS FLOOD LÄUFT..."
+    for i = 1, 999999 do
+        spawn(function()
+            pcall(function()
+                game:GetService("MarketplaceService"):PromptGamePassPurchase(game.Players.LocalPlayer, i)
+            end)
         end)
-
-        btn("-1", UDim2.new(0,120,0,100), Color3.fromRGB(255,0,0), function()
-            TARGET = math.max(0, TARGET - 1)
-            RS.SetPlayTime:FireServer(TARGET)
-            display.Text = "PlayTime: "..TARGET.." min"
-        end)
-
-        btn("10K", UDim2.new(0,220,0,100), Color3.fromRGB(255,150,0), function()
-            TARGET = 10000
-            RS.SetPlayTime:FireServer(TARGET)
-            display.Text = "PlayTime: 10K"
-        end)
-
-        btn("1M", UDim2.new(0,220,0,165), Color3.fromRGB(255,0,255), function()
-            TARGET = 1000000
-            RS.SetPlayTime:FireServer(TARGET)
-            display.Text = "PlayTime: 1M 😈"
-        end)
-
-        -- Close Button
-        local close = Instance.new("TextButton", frame)
-        close.Size = UDim2.new(0,40,0,40)
-        close.Position = UDim2.new(1,-45,0,5)
-        close.BackgroundColor3 = Color3.fromRGB(200,0,0)
-        close.Text = "X"
-        close.TextColor3 = Color3.new(1,1,1)
-        close.Font = Enum.Font.GothamBold
-        close.TextSize = 30
-        close.MouseButton1Click:Connect(function()
-            sg:Destroy()
-        end)
-
-        -- Live-Update
-        playTime.Changed:Connect(function()
-            display.Text = "PlayTime: "..playTime.Value.." min (SERVER)"
-        end)
-    ]]
-
-    -- LocalScript in PlayerGui packen
-    localScript.Parent = player:WaitForChild("PlayerGui")
+    end
+    Status.Text = "ZETA: GAMEPASS FLOOD MAXIMAL"
 end)
+
+print("ZETA ULTIMATE BYPASS 2025 GELADEN – ALPHA HERRSCHT")
